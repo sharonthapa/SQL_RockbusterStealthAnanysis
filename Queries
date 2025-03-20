@@ -1,4 +1,22 @@
-This SQL query calculated the top 10 movies that contributed the most/least to revenue gain
+This SQL query calculated the min, max and average: 
+
+SELECT		
+   AVG(rental_duration) AS average_rental_duration,		
+   MIN(rental_duration) AS min_rental_duration,		
+   MAX(rental_duration) AS max_rental_duration,		
+   AVG(rental_rate) AS average_rental_rate,		
+   MIN(rental_rate) AS min_rental_rate,		
+   MAX(rental_rate) AS max_rental_rate,		
+   AVG(length) AS average_length,		
+   MIN(length) AS min_length,		
+   MAX(length) AS max_length,		
+   AVG(replacement_cost) AS average_replacement_cost,		
+   MIN(replacement_cost) AS min_replacement_cost,		
+   MAX(replacement_cost) AS max_replacement_cost		
+FROM film;		
+
+
+This SQL query calculated the top 10 movies that contributed the most to revenue gain:
 
 SELECT F.title AS movie_title,	
        C.name AS genre,	
@@ -12,4 +30,82 @@ INNER JOIN category C ON FC.category_id = C.category_id
 GROUP BY F.title, C.name	
 ORDER BY total_revenue DESC	
 LIMIT 10
+
+
+This query calculated the top 10 countries:
+
+SELECT CO.country AS country,	
+       SUM(P.amount) AS total_sales	
+FROM payment P	
+INNER JOIN rental R ON P.rental_id = R.rental_id	
+INNER JOIN customer C ON R.customer_id = C.customer_id	
+INNER JOIN address A ON C.address_id = A.address_id	
+INNER JOIN city CI ON A.city_id = CI.city_id	
+INNER JOIN country CO ON CI.country_id = CO.country_id	
+GROUP BY CO.country	
+ORDER BY total_sales DESC	
+Limit 10 	
+
+
+This SQL query calculated the top 5 customers from the top 10 cities:
+
+SELECT B.customer_id, B.first_name, B.last_name, E.country,		
+D.city, SUM(A.amount) AS total_amount_paid		
+FROM payment A		
+INNER JOIN customer B ON A.customer_id = B.customer_id		
+INNER JOIN address C ON B.address_id = C.address_id		
+INNER JOIN city D ON C.city_id = D.city_id		
+INNER JOIN country E ON D.country_id = E.country_id		
+WHERE (E.country, D.city) IN (		
+SELECT D.country, C.city		
+FROM customer A		
+INNER JOIN address B ON A.address_id = B.address_id		
+INNER JOIN city C ON B.city_id = C.city_id		
+INNER JOIN country D ON C.country_id = D.country_id		
+WHERE D.country IN (		
+SELECT D.country		
+FROM customer A		
+JOIN address B ON A.address_id = B.address_id		
+JOIN city C ON B.city_id = C.city_id		
+JOIN country D ON C.country_id = D.country_id		
+GROUP BY D.country		
+ORDER BY COUNT(A.customer_id) DESC		
+LIMIT 10		
+)		
+GROUP BY D.country, C.city		
+ORDER BY COUNT(A.customer_id) DESC		
+LIMIT 10		
+)		
+GROUP BY B.customer_id, B.first_name, B.last_name, E.country, D.city		
+ORDER BY total_amount_paid DESC		
+LIMIT 5;
+
+
+query calculated the customer base:
+
+SELECT CO.country AS country,		
+       SUM(P.amount) AS total_sales		
+FROM payment P		
+INNER JOIN rental R ON P.rental_id = R.rental_id		
+INNER JOIN customer C ON R.customer_id = C.customer_id		
+INNER JOIN address A ON C.address_id = A.address_id		
+INNER JOIN city CI ON A.city_id = CI.city_id		
+INNER JOIN country CO ON CI.country_id = CO.country_id		
+GROUP BY CO.country		
+ORDER BY total_sales DESC;
+
+
+Query for the company that contributed to the most gain:
+
+SELECT F.title AS movie_title,			
+       C.name AS genre,			
+	   SUM(P.amount) AS total_revenue		
+FROM payment P			
+INNER JOIN rental R ON P.rental_id = R.rental_id			
+INNER JOIN inventory I ON R.inventory_id = I.inventory_id			
+INNER JOIN film F ON I.film_id = F.film_id			
+INNER JOIN film_category FC ON F.film_id = FC.film_id			
+INNER JOIN category C ON FC.category_id = C.category_id			
+GROUP BY F.title, C.name			
+ORDER BY total_revenue DESC;			
 
